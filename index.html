@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brisbane Season Calendar ☀️</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☀️</text></svg>" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sky: #1A6B9A;
+      --sky-light: #E8F4FD;
+      --sun: #E8A020;
+      --sun-light: #FEF3DC;
+      --coral: #D95F3B;
+      --coral-light: #FDEEE9;
+      --green: #3A7D5C;
+      --green-light: #E8F5EE;
+      --storm: #4A5568;
+      --storm-light: #EDF2F7;
+      --pink: #B5456A;
+      --pink-light: #FCEEF4;
+      --sand: #F7F3ED;
+      --sand-dark: #E8E0D5;
+      --text: #1A1410;
+      --text-muted: #6B5E52;
+      --white: #FDFCFA;
+
+      /* weather gradient per month – bg color */
+      --jan: #FEF3DC; --feb: #FEF3DC; --mar: #FEF8EC;
+      --apr: #F0FAF5; --may: #E8F5EE; --jun: #E8F4FD;
+      --jul: #E4F1FB; --aug: #E8F4FD; --sep: #EDF8F3;
+      --oct: #F5F9E8; --nov: #FEF8E8; --dec: #FEF3DC;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Instrument Sans', sans-serif;
+      background: var(--sand);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 20% 20%, #E8A02015 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, #1A6B9A12 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+    }
+
+    /* HEADER */
+    header { margin-bottom: 3rem; }
+
+    .header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .logo-mark {
+      font-size: 2.8rem;
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1.0;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+    }
+
+    h1 em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--sky);
+    }
+
+    .tagline {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 0.5rem;
+    }
+
+    /* LEGEND */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .legend-label {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-right: 0.3rem;
+    }
+
+    .leg {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: var(--white);
+      border: 1px solid var(--sand-dark);
+      border-radius: 100px;
+      padding: 0.2rem 0.65rem 0.2rem 0.45rem;
+    }
+
+    .leg-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* FILTER TABS */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 2rem;
+    }
+
+    .filter-btn {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      background: var(--white);
+      border: 1.5px solid var(--sand-dark);
+      border-radius: 100px;
+      padding: 0.35rem 0.9rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+
+    .filter-btn:hover { border-color: var(--text-muted); color: var(--text); }
+    .filter-btn.active { background: var(--text); border-color: var(--text); color: var(--white); }
+
+    /* GRID */
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 900px) { .cal-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px) { .cal-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    /* MONTH CARD */
+    .month-card {
+      background: var(--white);
+      border: 1.5px solid var(--sand-dark);
+      border-radius: 18px;
+      overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.15s;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .month-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 28px #1A141018;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .month-card:nth-child(1)  { animation-delay: 0.02s; }
+    .month-card:nth-child(2)  { animation-delay: 0.04s; }
+    .month-card:nth-child(3)  { animation-delay: 0.06s; }
+    .month-card:nth-child(4)  { animation-delay: 0.08s; }
+    .month-card:nth-child(5)  { animation-delay: 0.10s; }
+    .month-card:nth-child(6)  { animation-delay: 0.12s; }
+    .month-card:nth-child(7)  { animation-delay: 0.14s; }
+    .month-card:nth-child(8)  { animation-delay: 0.16s; }
+    .month-card:nth-child(9)  { animation-delay: 0.18s; }
+    .month-card:nth-child(10) { animation-delay: 0.20s; }
+    .month-card:nth-child(11) { animation-delay: 0.22s; }
+    .month-card:nth-child(12) { animation-delay: 0.24s; }
+
+    .card-header {
+      padding: 1rem 1rem 0.7rem;
+      border-bottom: 1px solid var(--sand-dark);
+    }
+
+    .month-num {
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.1rem;
+    }
+
+    .month-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    /* TEMP BAR */
+    .temp-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .temp-track {
+      flex: 1;
+      height: 6px;
+      background: var(--sand-dark);
+      border-radius: 100px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .temp-fill {
+      position: absolute;
+      top: 0; bottom: 0;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--sky), var(--sun), var(--coral));
+    }
+
+    .temp-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.62rem;
+      color: var(--text-muted);
+    }
+
+    .temp-hi { color: var(--coral); font-weight: 600; }
+    .temp-lo { color: var(--sky); }
+
+    /* CARD BODY */
+    .card-body { padding: 0.75rem 1rem 0.9rem; }
+
+    /* CATEGORY ROWS */
+    .cat-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      transition: opacity 0.2s;
+    }
+
+    .cat-row.dimmed { opacity: 0.15; }
+
+    .cat-icon { font-size: 0.9rem; flex-shrink: 0; margin-top: 1px; }
+
+    .cat-content { flex: 1; min-width: 0; }
+
+    .cat-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.1rem;
+    }
+
+    /* INTENSITY BAR */
+    .intensity-bar {
+      display: flex;
+      gap: 2px;
+    }
+
+    .int-seg {
+      height: 4px;
+      flex: 1;
+      border-radius: 2px;
+      background: var(--sand-dark);
+      transition: background 0.3s;
+    }
+
+    .int-seg.on { background: currentColor; }
+
+    /* EVENTS */
+    .event-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      margin-top: 0.15rem;
+    }
+
+    .chip {
+      font-size: 0.6rem;
+      font-weight: 500;
+      padding: 0.15rem 0.45rem;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+
+    .chip-major { background: var(--sun-light); color: #8B5A0A; }
+    .chip-sport { background: var(--sky-light); color: #0D4F73; }
+    .chip-culture { background: var(--pink-light); color: #8B2A4E; }
+    .chip-nature { background: var(--green-light); color: #1F5C3A; }
+    .chip-warn   { background: var(--coral-light); color: #8B2A0F; }
+
+    /* OVERALL BADGE */
+    .overall-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.22rem 0.6rem;
+      border-radius: 100px;
+      margin-bottom: 0.6rem;
+    }
+
+    .badge-great    { background: var(--green-light); color: var(--green); }
+    .badge-good     { background: var(--sky-light);   color: var(--sky); }
+    .badge-ok       { background: var(--sun-light);   color: #8B5A0A; }
+    .badge-hot      { background: var(--coral-light); color: var(--coral); }
+    .badge-wild     { background: var(--storm-light); color: var(--storm); }
+
+    /* RAIN */
+    .rain-drops {
+      display: flex;
+      gap: 2px;
+      align-items: flex-end;
+      height: 14px;
+      margin-top: 0.15rem;
+    }
+
+    .drop {
+      width: 4px;
+      border-radius: 2px;
+      background: var(--sky);
+      opacity: 0.25;
+      transition: height 0.4s, opacity 0.4s;
+    }
+
+    .drop.filled { opacity: 0.85; }
+
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="header-top">
+      <div>
+        <div class="logo-mark">☀️</div>
+        <h1>Brisbane<br><em>Season Calendar</em></h1>
+        <p class="tagline">Weather · Events · Warnings · Month by month</p>
+      </div>
+      <div class="legend">
+        <span class="legend-label">Intensity:</span>
+        <span class="leg"><span class="leg-dot" style="background:#3A7D5C"></span>mild</span>
+        <span class="leg"><span class="leg-dot" style="background:#E8A020"></span>moderate</span>
+        <span class="leg"><span class="leg-dot" style="background:#D95F3B"></span>high</span>
+      </div>
+    </div>
+
+    <div class="filter-bar" id="filter-bar">
+      <button class="filter-btn active" data-cat="all">All</button>
+      <button class="filter-btn" data-cat="weather">☀️ Weather</button>
+      <button class="filter-btn" data-cat="storms">⛈️ Storms</button>
+      <button class="filter-btn" data-cat="stinger">🪼 Stinger season</button>
+      <button class="filter-btn" data-cat="events">🎉 Events</button>
+      <button class="filter-btn" data-cat="mosquito">🦟 Mosquitoes</button>
+      <button class="filter-btn" data-cat="surf">🏄 Surf</button>
+    </div>
+  </header>
+
+  <div class="cal-grid" id="cal-grid"></div>
+
+  <footer>
+    Data is indicative based on Brisbane historical averages · Built for people planning a visit or move to Brisbane 🦘<br>
+    Stinger season applies to northern Queensland waters · Always check local surf reports
+  </footer>
+
+</div>
+
+<script>
+const MONTHS = [
+  {
+    n: "January", short: "01",
+    hi: 29, lo: 21, rain: 5,
+    overall: { label: "Hot & Stormy", cls: "badge-hot" },
+    weather: { text: "Very hot and humid. Afternoon storms almost daily.", level: 5 },
+    storms: { text: "Peak storm season. Severe thunderstorms, hail possible.", level: 5 },
+    stinger: { text: "Peak stinger season in northern QLD waters.", level: 5 },
+    mosquito: { text: "Peak mosquito activity after rain.", level: 5 },
+    surf: { text: "Small swell, onshore winds. Crowded beaches.", level: 2 },
+    events: [
+      { name: "Brisbane Festival fringe", type: "culture" },
+      { name: "New Year aftermath 🎆", type: "major" },
+      { name: "Australia Day (Jan 26)", type: "major" },
+    ]
+  },
+  {
+    n: "February", short: "02",
+    hi: 29, lo: 21, rain: 5,
+    overall: { label: "Hot & Wet", cls: "badge-hot" },
+    weather: { text: "Hottest month. High humidity, heavy downpours.", level: 5 },
+    storms: { text: "Still peak storm season. Flash flooding risk.", level: 5 },
+    stinger: { text: "High stinger risk in northern waters.", level: 4 },
+    mosquito: { text: "Very high. Use repellent after rain.", level: 5 },
+    surf: { text: "Cyclone swells possible. Check conditions.", level: 3 },
+    events: [
+      { name: "Chinese New Year", type: "culture" },
+      { name: "Valley Fiesta", type: "culture" },
+    ]
+  },
+  {
+    n: "March", short: "03",
+    hi: 28, lo: 19, rain: 4,
+    overall: { label: "Warm, easing", cls: "badge-ok" },
+    weather: { text: "Still warm but humidity starts to drop. Lovely evenings.", level: 4 },
+    storms: { text: "Storms easing off. Still possible mid-month.", level: 3 },
+    stinger: { text: "Stinger risk dropping. Still present.", level: 3 },
+    mosquito: { text: "Moderate. Still active near waterways.", level: 3 },
+    surf: { text: "Cyclone swells from the Coral Sea. Best surf month.", level: 5 },
+    events: [
+      { name: "Brisbane Comedy Festival", type: "culture" },
+      { name: "St Patrick's Day", type: "culture" },
+      { name: "World Science Festival", type: "major" },
+    ]
+  },
+  {
+    n: "April", short: "04",
+    hi: 26, lo: 17, rain: 3,
+    overall: { label: "Perfect", cls: "badge-great" },
+    weather: { text: "Ideal. Warm sunny days, cool nights. Low humidity.", level: 2 },
+    storms: { text: "Storms rare. Occasional shower only.", level: 1 },
+    stinger: { text: "Low risk. Safe for most coastal swimming.", level: 1 },
+    mosquito: { text: "Low. Comfortable outdoors in the evening.", level: 2 },
+    surf: { text: "Consistent swells. Good conditions.", level: 4 },
+    events: [
+      { name: "Easter long weekend", type: "major" },
+      { name: "Anzac Day (Apr 25)", type: "major" },
+      { name: "Brisbane International Film Festival", type: "culture" },
+    ]
+  },
+  {
+    n: "May", short: "05",
+    hi: 23, lo: 13, rain: 2,
+    overall: { label: "Lovely", cls: "badge-great" },
+    weather: { text: "Crisp and clear. The best month to explore the city.", level: 1 },
+    storms: { text: "Storms very rare. Dry and stable.", level: 1 },
+    stinger: { text: "Negligible risk. Go swimming.", level: 1 },
+    mosquito: { text: "Low. Mostly a non-issue.", level: 1 },
+    surf: { text: "Good swells, offshore winds. Excellent conditions.", level: 4 },
+    events: [
+      { name: "Paniyiri Greek Festival", type: "culture" },
+      { name: "Brisbane Writers Festival", type: "culture" },
+      { name: "Mother's Day", type: "major" },
+    ]
+  },
+  {
+    n: "June", short: "06",
+    hi: 21, lo: 11, rain: 2,
+    overall: { label: "Great", cls: "badge-great" },
+    weather: { text: "Cool and dry. Sunshine almost every day. Jumper at night.", level: 1 },
+    storms: { text: "No storms. Minimal rainfall.", level: 0 },
+    stinger: { text: "No stinger risk. Safe coastal swimming.", level: 0 },
+    mosquito: { text: "Very low. Enjoy evening outdoors.", level: 1 },
+    surf: { text: "Solid southern swells. Best surf window.", level: 5 },
+    events: [
+      { name: "State of Origin (rugby)", type: "sport" },
+      { name: "Curiocity Brisbane", type: "culture" },
+      { name: "Brisbane Broncos home games", type: "sport" },
+    ]
+  },
+  {
+    n: "July", short: "07",
+    hi: 20, lo: 10, rain: 1,
+    overall: { label: "Coolest month", cls: "badge-good" },
+    weather: { text: "Coldest month (for Brisbane). Dry and sunny. Light frost inland.", level: 1 },
+    storms: { text: "Virtually no storms. Driest period.", level: 0 },
+    stinger: { text: "No stinger risk.", level: 0 },
+    mosquito: { text: "Minimal. Barely noticeable.", level: 0 },
+    surf: { text: "Big southern swells. Surfers' favourite month.", level: 5 },
+    events: [
+      { name: "EKKA – Brisbane Show 🎡", type: "major" },
+      { name: "Noosa Triathlon prep", type: "sport" },
+      { name: "School holidays", type: "major" },
+    ]
+  },
+  {
+    n: "August", short: "08",
+    hi: 22, lo: 11, rain: 1,
+    overall: { label: "Still great", cls: "badge-great" },
+    weather: { text: "Dry and clear. Warming up mid-month. Windy days.", level: 1 },
+    storms: { text: "No storm risk.", level: 0 },
+    stinger: { text: "No stinger risk. Perfect ocean swimming.", level: 0 },
+    mosquito: { text: "Very low.", level: 0 },
+    surf: { text: "Strong south-easterlies. Choppy but powerful.", level: 4 },
+    events: [
+      { name: "Brisbane Festival 🎭", type: "major" },
+      { name: "Riverfire fireworks 🎆", type: "major" },
+      { name: "Caxton St Seafood & Wine", type: "culture" },
+    ]
+  },
+  {
+    n: "September", short: "09",
+    hi: 25, lo: 14, rain: 2,
+    overall: { label: "Warming up", cls: "badge-good" },
+    weather: { text: "Spring arrives. Warm days, occasional showers. Wattle blooming.", level: 2 },
+    storms: { text: "Early storm season begins late month.", level: 1 },
+    stinger: { text: "Very low risk. Safe swimming.", level: 0 },
+    mosquito: { text: "Starting to pick up.", level: 2 },
+    surf: { text: "Transitional. Good swells mid-month.", level: 3 },
+    events: [
+      { name: "Brisbane Marathon", type: "sport" },
+      { name: "Oktoberfest Brisbane", type: "culture" },
+      { name: "NRL Finals season", type: "sport" },
+    ]
+  },
+  {
+    n: "October", short: "10",
+    hi: 27, lo: 17, rain: 3,
+    overall: { label: "Lively", cls: "badge-good" },
+    weather: { text: "Hot and sunny. Humidity building. Storm activity increasing.", level: 3 },
+    storms: { text: "Storm season ramping up. Afternoon cells common.", level: 3 },
+    stinger: { text: "Stingers returning to far north QLD waters.", level: 2 },
+    mosquito: { text: "High after rain. Use repellent at dusk.", level: 3 },
+    surf: { text: "Onshore winds. Smaller swell.", level: 2 },
+    events: [
+      { name: "Noosa Triathlon 🏊", type: "sport" },
+      { name: "Brisbane Pride Festival 🏳️‍🌈", type: "major" },
+      { name: "Taste of Brisbane", type: "culture" },
+    ]
+  },
+  {
+    n: "November", short: "11",
+    hi: 28, lo: 19, rain: 4,
+    overall: { label: "Stormy build-up", cls: "badge-wild" },
+    weather: { text: "Hot and very humid. Daily chance of thunderstorms. Can feel oppressive.", level: 4 },
+    storms: { text: "Active storm season. Severe hail and lightning storms.", level: 4 },
+    stinger: { text: "Stinger season starts in Qld coastal waters.", level: 3 },
+    mosquito: { text: "High. Especially near bushland and rivers.", level: 4 },
+    surf: { text: "Inconsistent. Onshore trades dominant.", level: 2 },
+    events: [
+      { name: "Melbourne Cup (race day 🐎)", type: "major" },
+      { name: "Brisbane Queer Film Festival", type: "culture" },
+      { name: "Christmas markets begin", type: "major" },
+    ]
+  },
+  {
+    n: "December", short: "12",
+    hi: 29, lo: 21, rain: 5,
+    overall: { label: "Festive & hot", cls: "badge-hot" },
+    weather: { text: "Hot, steamy and festive. Christmas on the beach is real here.", level: 5 },
+    storms: { text: "Peak storm season. Spectacular lightning shows.", level: 5 },
+    stinger: { text: "High stinger risk in coastal and northern waters.", level: 4 },
+    mosquito: { text: "Very high. Essential to protect at dusk.", level: 5 },
+    surf: { text: "Small surf. Beach crowded. Good for swimming.", level: 2 },
+    events: [
+      { name: "Christmas in Brisbane 🎄", type: "major" },
+      { name: "New Year's Eve fireworks 🎆", type: "major" },
+      { name: "Boxing Day cricket", type: "sport" },
+    ]
+  },
+];
+
+const CAT_META = {
+  weather:  { icon: "☀️", label: "Weather",       color: "#E8A020" },
+  storms:   { icon: "⛈️", label: "Storm risk",    color: "#4A5568" },
+  stinger:  { icon: "🪼", label: "Stinger season", color: "#B5456A" },
+  mosquito: { icon: "🦟", label: "Mosquitoes",    color: "#3A7D5C" },
+  surf:     { icon: "🏄", label: "Surf",           color: "#1A6B9A" },
+  events:   { icon: "🎉", label: "Events",         color: "#D95F3B" },
+};
+
+const CHIP_TYPES = {
+  major: "chip-major", sport: "chip-sport",
+  culture: "chip-culture", nature: "chip-nature", warn: "chip-warn"
+};
+
+let activeFilter = "all";
+
+function intensityBar(level, color) {
+  const segs = [];
+  for (let i = 1; i <= 5; i++) {
+    segs.push(`<span class="int-seg ${i <= level ? 'on' : ''}" style="color:${color}"></span>`);
+  }
+  return `<div class="intensity-bar">${segs.join('')}</div>`;
+}
+
+function rainDrops(level) {
+  const drops = [];
+  const heights = [6, 9, 7, 11, 8, 10, 7];
+  heights.forEach((h, i) => {
+    drops.push(`<div class="drop ${i < level + 1 ? 'filled' : ''}" style="height:${h}px"></div>`);
+  });
+  return `<div class="rain-drops">${drops.join('')}</div>`;
+}
+
+function renderCard(m) {
+  const cats = ["weather", "storms", "stinger", "mosquito", "surf"];
+
+  const catRows = cats.map(key => {
+    const meta = CAT_META[key];
+    const data = m[key];
+    const dimmed = activeFilter !== "all" && activeFilter !== key ? "dimmed" : "";
+    return `<div class="cat-row ${dimmed}">
+      <span class="cat-icon">${meta.icon}</span>
+      <div class="cat-content">
+        <div class="cat-label">${meta.label}</div>
+        ${intensityBar(data.level, meta.color)}
+        <div style="font-size:0.63rem;color:var(--text-muted);margin-top:0.2rem;line-height:1.4">${data.text}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const eventsDimmed = activeFilter !== "all" && activeFilter !== "events" ? "dimmed" : "";
+  const chips = m.events.map(e =>
+    `<span class="chip ${CHIP_TYPES[e.type] || 'chip-major'}">${e.name}</span>`
+  ).join('');
+
+  const tempPct = ((m.lo - 5) / 30) * 100;
+  const tempWidth = ((m.hi - m.lo) / 35) * 100;
+
+  return `<div class="month-card">
+    <div class="card-header">
+      <div class="month-num">${m.short}</div>
+      <div class="month-name">${m.n}</div>
+      <span class="overall-badge ${m.overall.cls}">${m.overall.label}</span>
+      <div class="temp-row">
+        <span class="temp-lo" style="font-size:0.68rem;font-weight:500">${m.lo}°</span>
+        <div class="temp-track">
+          <div class="temp-fill" style="left:${tempPct}%;width:${tempWidth}%"></div>
+        </div>
+        <span class="temp-hi" style="font-size:0.68rem">${m.hi}°</span>
+      </div>
+      <div class="temp-labels"><span>min</span><span>max °C</span></div>
+      ${rainDrops(m.rain)}
+    </div>
+    <div class="card-body">
+      ${catRows}
+      <div class="cat-row ${eventsDimmed}" style="margin-top:0.3rem">
+        <span class="cat-icon">🎉</span>
+        <div class="cat-content">
+          <div class="cat-label">Events</div>
+          <div class="event-chips">${chips}</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function render() {
+  document.getElementById('cal-grid').innerHTML = MONTHS.map(renderCard).join('');
+}
+
+document.getElementById('filter-bar').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  activeFilter = btn.dataset.cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
