@@ -112,10 +112,5 @@ The intensity bar renders automatically based on the level.
 
 ---
 
-## 📝 License
 
-MIT — do whatever you like with it.
-
----
-
-*Built with ❤️ for cold water swimmers dreaming of Brisbane* 🦘
+*Built with ❤️ 
